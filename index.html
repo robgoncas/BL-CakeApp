@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Ventas</title>
+    <!-- Material Icons & Font Awesome -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- MDB‑style CSS -->
+    <style>
+        @import url('https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css');
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .mdc-card {
+            background: #fff;
+            padding: 16px;
+            margin-bottom: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .mdc-card__title i,
+        .mdc-card__title {
+            margin-right: 8px;
+        }
+
+        .mdc-layout-grid {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: repeat(12, 1fr);
+        }
+
+        .mdc-layout-grid__cell--span-12 {
+            grid-column: 1/-1;
+        }
+
+        .mdc-layout-grid__cell--span-6 {
+            grid-column: span 6;
+        }
+
+        .mdc-button {
+            margin: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* input autocomplete drop */
+        #search-results {
+            display: none;
+            position: absolute;
+            background: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            width: calc(100% - 32px);
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        #search-results div {
+            padding: 12px 16px;
+            cursor: pointer;
+        }
+
+        #search-results div:hover {
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            padding: 8px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+            text-align: left;
+        }
+
+        /* === VENTAS: LISTA DE PRODUCTOS VENDIDOS === */
+        #sale-items-list li {
+            display: flex;
+            flex-direction: column;
+            background: #fefefe;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            padding: 0.75rem;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        #sale-items-list .item-info {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        #sale-items-list .item-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        #sale-items-list .item-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        #sale-items-list button {
+            font-size: 1.2rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+        }
+
+        /* === SUBTOTALES Y TOTALES === */
+        #subtotal,
+        #taxes,
+        #total,
+        .subtotal,
+        .taxes {
+            font-size: 1.60rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #total {
+            color: #00796B;
+            /* Verde Material Design */
+            font-size: 2.25rem;
+        }
+
+        /* === TABLA RESPONSIVA === */
+        .responsive-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .responsive-table table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .responsive-table th,
+        .responsive-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+            font-size: 1rem;
+        }
+
+        .responsive-table th {
+            background-color: #e0e0e0;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+
+            .responsive-table table,
+            .responsive-table thead,
+            .responsive-table tbody,
+            .responsive-table th,
+            .responsive-table td,
+            .responsive-table tr {
+                display: block;
+            }
+
+            .responsive-table th {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            .responsive-table td {
+                position: relative;
+                padding-left: 50%;
+                border: none;
+                border-bottom: 1px solid #eee;
+            }
+
+            .responsive-table td:before {
+                position: absolute;
+                left: 10px;
+                top: 10px;
+                white-space: nowrap;
+                font-weight: bold;
+                content: attr(data-label);
+            }
+        }
+
+        /* === LISTA DE PRODUCTOS (CATÁLOGO) === */
+        #products-list {
+            width: 100%;
+            padding: 0;
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        #products-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #fafafa;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        #products-list .item-name {
+            font-weight: 600;
+            color: #424242;
+        }
+
+        #products-list .item-category {
+            font-size: 0.9rem;
+            color: #757575;
+        }
+
+        #products-list .item-price {
+            font-weight: bold;
+            color: #1E88E5;
+        }
+
+        /* === DETALLES DE VENTAS === */
+        #sales-history details {
+            background: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            font-size: 1rem;
+        }
+
+        #sales-history summary {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #00796B;
+            cursor: pointer;
+        }
+
+        #sales-history ul {
+            padding-left: 1.25rem;
+            margin-top: 0.5rem;
+        }
+
+        #sales-history li {
+            margin-bottom: 0.25rem;
+        }
+
+        #sales-history p {
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        .ticket {
+            width: 58mm;
+            max-width: 100%;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 10px;
+            white-space: pre-wrap;
+        }
+
+        .ticket-header,
+        .ticket-footer {
+            text-align: center;
+            border-bottom: 1px dashed #000;
+            margin-bottom: 10px;
+        }
+
+        .ticket-items {
+            margin-top: 10px;
+        }
+
+        .ticket-items li {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #ccc;
+            padding: 4px 0;
+        }
+
+        .ticket-summary {
+            margin-top: 10px;
+            text-align: right;
+            font-weight: bold;
+        }
+    </style>
+
+</head>
+
+<body>
+    <header class="mdc-top-app-bar">
+        <div class="mdc-top-app-bar__row">
+            <section class="mdc-top-app-bar__section">
+                <span class="mdc-top-app-bar__title"><i class="fas fa-cash-register"></i> Sistema de Ventas</span>
+            </section>
+            <section class="mdc-top-app-bar__section" style="justify-content:flex-end;">
+                <button class="mdc-button mdc-button--raised" onclick="resetLocalData()">
+                    <span class="mdc-button__label">Reiniciar Datos</span>
+                </button>
+            </section>
+        </div>
+    </header>
+    <main class="container">
+        <div class="mdc-layout-grid">
+            <!-- VENTAS -->
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 mdc-card">
+                <h2 class="mdc-card__title"><i class="fas fa-shopping-cart"></i> Ventas</h2>
+                <div style="position:relative;">
+                    <div class="mdc-text-field mdc-text-field--outlined" style="width: -webkit-fill-available;">
+                        <input id="product-search" class="mdc-text-field__input" type="text" autocomplete="off">
+                        <span class="mdc-notched-outline">
+                            <span class="mdc-notched-outline__leading"></span>
+                            <span class="mdc-notched-outline__notch">
+                                <label for="product-search" class="mdc-floating-label">Buscar producto</label>
+                            </span>
+                            <span class="mdc-notched-outline__trailing"></span>
+                        </span>
+                    </div>
+                    <div id="search-results"></div>
+                </div>
+                <ul id="sale-items-list" class="mdc-list"></ul>
+                <div class="totals">
+                    <p><span class="subtotal">Subtotal: </span> <span id="subtotal">$0.00</span></p>
+                    <p><span class="taxes">Impuestos (14.975%): </span> <span id="taxes">$0.00</span></p>
+                    <p class="total-amount"><span class="subtotal">Total:</span> <span id="total">$0.00</span></p>
+                </div>
+
+                <button id="print-ticket" class="mdc-button mdc-button--outlined"
+                    style="width: 100%; margin-top: 10px;">
+                    <span class="mdc-button__label">🖨️ Imprimir Ticket</span>
+                </button>
+
+                <!-- Zona oculta para generar el ticket -->
+                <div id="ticket-content" style="display: none;"></div>
+
+
+
+                <button id="complete-sale" class="mdc-button mdc-button--raised mdc-button--primary"
+                    style="width:100%;">
+                    <span class="mdc-button__label"><i class="fas fa-check-circle"></i> Finalizar Venta</span>
+                </button>
+            </div>
+
+            <!-- PRODUCTOS -->
+            <!-- AGREGAR PRODUCTO -->
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 mdc-card" style="padding: 1rem;">
+                <h2 class="mdc-typography--headline6" style="margin-bottom: 1rem;">
+                    <i class="fas fa-plus-circle"></i> Agregar Producto
+                </h2>
+                <form id="add-product-form" class="form-material" autocomplete="off">
+
+                    <!-- Nombre -->
+                    <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--fullwidth"
+                        style="width: 100%; margin-bottom: 1rem;">
+                        <input type="text" id="product-name" class="mdc-text-field__input" required>
+                        <label for="product-name" class="mdc-floating-label">Nombre</label>
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch"></div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                    </div>
+
+                    <!-- Categoría -->
+                    <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--fullwidth"
+                        style="width: 100%; margin-bottom: 1rem;">
+                        <input type="text" id="product-category" class="mdc-text-field__input">
+                        <label for="product-category" class="mdc-floating-label">Categoría</label>
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch"></div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                    </div>
+
+                    <!-- Precio -->
+                    <div class="mdc-text-field mdc-text-field--outlined mdc-text-field--fullwidth"
+                        style="width: 100%; margin-bottom: 1rem;">
+                        <input type="number" id="product-price" class="mdc-text-field__input" step="0.01" required>
+                        <label for="product-price" class="mdc-floating-label">Precio</label>
+                        <div class="mdc-notched-outline">
+                            <div class="mdc-notched-outline__leading"></div>
+                            <div class="mdc-notched-outline__notch"></div>
+                            <div class="mdc-notched-outline__trailing"></div>
+                        </div>
+                    </div>
+
+                    <!-- Botón -->
+                    <button type="submit" class="mdc-button mdc-button--raised" style="width: 100%;">
+                        <span class="mdc-button__label"><i class="fas fa-save"></i> Guardar Producto</span>
+                    </button>
+
+                </form>
+            </div>
+
+            <!-- INDICADORES -->
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 mdc-card">
+                <h2 class="mdc-card__title"><i class="fas fa-chart-bar"></i> Indicadores</h2>
+                <div class="mdc-layout-grid">
+                    <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
+                        <div class="mdc-card" style="background:#e3f2fd;text-align:center;">
+                            <h4>Total Ventas Hoy</h4>
+                            <p id="ventas-del-dia" class="total-amount">$0.00</p>
+                        </div>
+                    </div>
+                    <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
+                        <div class="mdc-card">
+                            <h4>Top 5 productos más vendidos</h4>
+                            <ul id="top-ventas" class="mdc-list"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HISTORIAL -->
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 mdc-card">
+                <h2 class="mdc-card__title"><i class="fas fa-history"></i> Historial de Ventas</h2>
+                <div id="sales-history"></div>
+            </div>
+
+            <!-- DESCARGAR -->
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 mdc-card">
+                <h2 class="mdc-card__title"><i class="fas fa-file-export"></i> Exportar Datos</h2>
+                <button id="download-products" class="mdc-button mdc-button--raised"><i class="fas fa-download"></i>
+                    Descargar Productos</button>
+                <button id="download-sales" class="mdc-button mdc-button--raised"><i class="fas fa-download"></i>
+                    Descargar Ventas</button>
+            </div>
+
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 mdc-card">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <h2 class="mdc-card__title"><i class="fas fa-list-ol"></i> Lista de Productos</h2>
+                    <button id="refresh-products" class="mdc-button"><i class="fas fa-sync-alt"></i> Actualizar</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Categoría</th>
+                                <th>Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-list"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Variables globales
+        let products = [];
+        let currentSale = [];
+
+        // DOM
+        const productSearch = document.getElementById('product-search');
+        const searchResults = document.getElementById('search-results');
+        const saleItemsList = document.getElementById('sale-items-list');
+        const subtotalElement = document.getElementById('subtotal');
+        const taxesElement = document.getElementById('taxes');
+        const totalElement = document.getElementById('total');
+        const addProductForm = document.getElementById('add-product-form');
+        const productsList = document.getElementById('products-list');
+        const refreshProductsBtn = document.getElementById('refresh-products');
+        const completeSaleBtn = document.getElementById('complete-sale');
+        const ventasDelDiaEl = document.getElementById('ventas-del-dia');
+        const topVentasEl = document.getElementById('top-ventas');
+        const salesHistoryEl = document.getElementById('sales-history');
+        const downloadProductsBtn = document.getElementById('download-products');
+        const downloadSalesBtn = document.getElementById('download-sales');
+
+        // Eventos
+        productSearch.addEventListener('input', handleProductSearch);
+        addProductForm.addEventListener('submit', handleAddProduct);
+        refreshProductsBtn.addEventListener('click', loadInitialData);
+        completeSaleBtn.addEventListener('click', completeSale);
+        downloadProductsBtn.addEventListener('click', () => {
+            const filename = getTimestampFilename('productos');
+            downloadJSON(filename, products);
+        });
+
+        downloadSalesBtn.addEventListener('click', () => {
+            const filename = getTimestampFilename('ventas');
+            const sales = loadSalesFromLocalStorage();
+            downloadJSON(filename, sales);
+        });
+        searchResults.addEventListener('click', e => {
+            const el = e.target.closest('div[data-id]');
+            if (!el) return;
+            addProductToSale(el.getAttribute('data-id'));
+        });
+
+        function getTimestampFilename(baseName, extension = "json") {
+            const now = new Date();
+            const pad = n => String(n).padStart(2, '0');
+            const timestamp = `${pad(now.getDate())}-${pad(now.getMonth() + 1)}-${now.getFullYear()}-${pad(now.getHours())}${pad(now.getMinutes())}`;
+            return `${baseName}-${timestamp}.${extension}`;
+        }
+
+        // Storage
+        function loadProductsFromLocalStorage() {
+            const s = localStorage.getItem('productos');
+            return s ? JSON.parse(s) : [];
+        }
+        function saveProductsToLocalStorage() {
+            localStorage.setItem('productos', JSON.stringify(products));
+        }
+        function loadSalesFromLocalStorage() {
+            const s = localStorage.getItem('ventas');
+            return s ? JSON.parse(s) : [];
+        }
+        function saveSaleToLocalStorage(s) {
+            const all = loadSalesFromLocalStorage();
+            all.push(s);
+            localStorage.setItem('ventas', JSON.stringify(all));
+        }
+        function downloadJSON(fn, data) {
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = fn;
+            a.click();
+        }
+
+        // Datos iniciales
+        function loadInitialData() {
+            const base = [          // Plates
+                { id: 1, category: "plates", name: "Poisson Frit", price: 18.25, quantity: 10 },
+                { id: 2, category: "plates", name: "Lomo Saltado", price: 15.95, quantity: 10 },
+                { id: 3, category: "plates", name: "Burrito", price: 14.50, quantity: 10 },
+                { id: 4, category: "plates", name: "Quesadilla", price: 14.00, quantity: 10 },
+                { id: 5, category: "plates", name: "Fajitas", price: 14.75, quantity: 10 },
+                { id: 6, category: "plates", name: "Steak", price: 20.95, quantity: 10 },
+                { id: 7, category: "plates", name: "Poulet Poutine", price: 17.50, quantity: 10 },
+
+                // Desserts
+                { id: 8, category: "desserts", name: "Alfajor", price: 3.75, quantity: 20 },
+                { id: 9, category: "desserts", name: "Chilenito", price: 4.00, quantity: 20 },
+                { id: 10, category: "desserts", name: "Churro", price: 2.75, quantity: 20 },
+                { id: 11, category: "desserts", name: "Gateau", price: 5.00, quantity: 15 },
+
+                // Breuvages
+                { id: 12, category: "breuvages", name: "Jus de Fruits", price: 5.25, quantity: 30 },
+                { id: 13, category: "breuvages", name: "Boissons Gazeuses Importées", price: 3.00, quantity: 30 },
+                { id: 14, category: "breuvages", name: "Boissons Gazeuses", price: 2.50, quantity: 30 },
+                { id: 15, category: "breuvages", name: "Café Filtre", price: 2.50, quantity: 30 },
+                { id: 16, category: "breuvages", name: "Thé", price: 2.50, quantity: 30 },
+                { id: 17, category: "breuvages", name: "Café au Lait", price: 4.50, quantity: 30 },
+                { id: 18, category: "breuvages", name: "Capuccino", price: 3.75, quantity: 30 },
+                { id: 19, category: "breuvages", name: "Espresso", price: 3.35, quantity: 30 },
+
+                // Soupes
+                { id: 20, category: "soupes", name: "Lentilles", price: 4.50, quantity: 15 },
+                { id: 21, category: "soupes", name: "Poulet", price: 4.50, quantity: 15 },
+
+                // Salades
+                { id: 22, category: "salades", name: "Salade du Chef", price: 4.50, quantity: 15 },
+                { id: 23, category: "salades", name: "Salade Barros Luco", price: 11.50, quantity: 10 },
+                { id: 24, category: "salades", name: "Guacamole", price: 15.00, quantity: 10 },
+                { id: 25, category: "salades", name: "Salade Chilienne", price: 6.50, quantity: 15 },
+                { id: 26, category: "salades", name: "Ceviche de Crevettes", price: 15.00, quantity: 10 },
+                { id: 27, category: "salades", name: "Avocat Farci", price: 11.50, quantity: 10 },
+
+                // Sandwichs
+                { id: 28, category: "sandwichs", name: "Barros Luco", price: 7.50, quantity: 20 },
+                { id: 29, category: "sandwichs", name: "Barros Jarpa", price: 7.50, quantity: 20 },
+                { id: 30, category: "sandwichs", name: "Barros Pollo", price: 7.50, quantity: 20 },
+                { id: 31, category: "sandwichs", name: "Chacarero", price: 7.50, quantity: 20 },
+                { id: 32, category: "sandwichs", name: "Churrasco", price: 7.50, quantity: 20 },
+                { id: 33, category: "sandwichs", name: "Lomito", price: 7.50, quantity: 20 },
+                { id: 34, category: "sandwichs", name: "Végétarien", price: 7.50, quantity: 20 },
+                { id: 35, category: "sandwichs", name: "Completo", price: 7.50, quantity: 20 },
+
+                // Empanadas
+                { id: 36, category: "empanadas", name: "Boeuf", price: 4.25, quantity: 30 },
+                { id: 37, category: "empanadas", name: "Poulet", price: 4.25, quantity: 30 },
+                { id: 38, category: "empanadas", name: "Épinard et Fromage", price: 4.25, quantity: 30 },
+                { id: 39, category: "empanadas", name: "Fromage", price: 4.25, quantity: 30 },
+                { id: 40, category: "empanadas", name: "Végétarien", price: 4.25, quantity: 30 },
+                { id: 41, category: "empanadas", name: "Fruits de Mer", price: 4.25, quantity: 30 }
+            ];
+
+            const stored = loadProductsFromLocalStorage();
+            const ids = new Set(stored.map(p => p.id));
+            const extra = base.filter(p => !ids.has(p.id));
+            products = [...stored, ...extra];
+            saveProductsToLocalStorage();
+            renderProductsList();
+            renderIndicadores();
+            renderSalesHistory();
+        }
+
+        // Lógica
+        function handleProductSearch() {
+            const q = productSearch.value.trim().toLowerCase();
+            if (q.length < 2) { return searchResults.style.display = 'none'; }
+            const seen = new Set();
+            const list = products.filter(p => {
+                const match = p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q);
+                if (match && !seen.has(p.name)) { seen.add(p.name); return true; }
+            });
+            if (!list.length) return searchResults.innerHTML = '<div>No hay resultados</div>', searchResults.style.display = 'block';
+            searchResults.innerHTML = list.map(p => `<div data-id="${p.id}">${p.name} (${p.category}) — $${p.price.toFixed(2)}</div>`).join('');
+            searchResults.style.display = 'block';
+        }
+
+        function addProductToSale(idStr) {
+            const id = Number(idStr), p = products.find(x => x.id === id);
+            if (!p) return;
+            const ex = currentSale.find(i => i.id === id);
+            ex ? ex.quantity++ : currentSale.push({ ...p, quantity: 1 });
+            renderSaleItems(); calcTotals();
+            productSearch.value = ''; searchResults.style.display = 'none'; productSearch.focus();
+        }
+
+        function renderSaleItems() {
+            saleItemsList.innerHTML = currentSale.map(item => `
+    <li class="mdc-list-item d-flex justify-content-between">
+      <div>
+        <strong>${item.name}</strong>
+        <div>
+          <button onclick="updateQty(${item.id},-1)">-</button>
+          <span>${item.quantity}</span>
+          <button onclick="updateQty(${item.id},1)">+</button>
+          <button onclick="removeSaleItem(${item.id})">🗑️</button>
+        </div>
+      </div>
+      <span>$${(item.price * item.quantity).toFixed(2)}</span>
+    </li>
+  `).join('');
+        }
+
+        function removeSaleItem(id) {
+            currentSale = currentSale.filter(i => i.id !== id);
+            renderSaleItems(); calcTotals();
+        }
+        function updateQty(id, c) {
+            const it = currentSale.find(i => i.id === id);
+            if (!it) return;
+            it.quantity += c;
+            if (it.quantity < 1) removeSaleItem(id);
+            renderSaleItems(); calcTotals();
+        }
+
+        function calcTotals() {
+            const sub = currentSale.reduce((a, i) => a + i.price * i.quantity, 0);
+            const taxes = sub * 0.14975;
+            const tot = sub + taxes;
+            subtotalElement.textContent = `$${sub.toFixed(2)}`;
+            taxesElement.textContent = `$${taxes.toFixed(2)}`;
+            totalElement.textContent = `$${tot.toFixed(2)}`;
+        }
+
+        function completeSale() {
+            if (!currentSale.length) return alert('Agrega productos primero.');
+            const sub = currentSale.reduce((a, i) => a + i.price * i.quantity, 0);
+            const taxes = sub * 0.14975, tot = sub + taxes;
+            const sale = { id: Date.now(), date: new Date().toISOString(), products: currentSale.map(i => ({ name: i.name, quantity: i.quantity, price: i.price })), subtotal: sub, taxes, total: tot };
+            saveSaleToLocalStorage(sale);
+            currentSale = []; renderSaleItems(); calcTotals(); renderIndicadores(); renderSalesHistory(); alert(`Venta guardada por $${tot.toFixed(2)}`);
+        }
+
+        function handleAddProduct(e) {
+            e.preventDefault();
+            const name = document.getElementById('product-name').value.trim();
+            const category = document.getElementById('product-category').value.trim() || 'General';
+            const price = parseFloat(document.getElementById('product-price').value);
+            if (!name || isNaN(price)) return alert('Completa todos los campos correctamente.');
+            const p = { id: Date.now(), name, category, price };
+            products.push(p); saveProductsToLocalStorage(); renderProductsList(); renderIndicadores(); addProductForm.reset();
+        }
+
+        function renderProductsList() {
+            const sortedProducts = [...products].sort((a, b) => {
+                const categoryA = a.category.toLowerCase();
+                const categoryB = b.category.toLowerCase();
+                if (categoryA < categoryB) return -1;
+                if (categoryA > categoryB) return 1;
+
+                const nameA = a.name.toLowerCase();
+                const nameB = b.name.toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
+
+            productsList.innerHTML = sortedProducts.map(p => `
+    <tr>
+      <td>${p.name}</td>
+      <td>${p.category}</td>
+      <td>$${p.price.toFixed(2)}</td>
+    </tr>
+  `).join('');
+        }
+
+        function renderIndicadores() {
+            const sales = loadSalesFromLocalStorage();
+            const today = new Date().toISOString().slice(0, 10);
+            const todaySales = sales.filter(s => s.date.startsWith(today));
+            const totalToday = todaySales.reduce((a, s) => a + s.total, 0);
+            ventasDelDiaEl.textContent = `$${totalToday.toFixed(2)}`;
+            const map = {};
+            sales.flatMap(s => s.products).forEach(p => map[p.name] = (map[p.name] || 0) + p.quantity);
+            const top = Object.entries(map).sort((a, b) => b[1] - a[1]).slice(0, 5);
+            topVentasEl.innerHTML = top.map(([n, q]) => `<li class="mdc-list-item">${n} (x${q})</li>`).join('');
+        }
+
+        function renderSalesHistory() {
+            const sales = loadSalesFromLocalStorage();
+            salesHistoryEl.innerHTML = sales.map((s, i) => `
+    <details><summary>Venta ${i + 1} – ${new Date(s.date).toLocaleString()} – $${s.total.toFixed(2)}</summary>
+    <ul>${s.products.map(p => `<li>${p.name} x${p.quantity}</li>`).join('')}</ul></details>
+  `).join('');
+        }
+
+        function resetLocalData() {
+            if (confirm('¿Eliminar todo?')) {
+                localStorage.clear();
+                products = []; currentSale = [];
+                renderSaleItems(); calcTotals(); renderProductsList(); renderIndicadores(); renderSalesHistory();
+            }
+        }
+
+
+        document.getElementById('print-ticket').addEventListener('click', () => {
+            if (currentSale.length === 0) {
+                alert('Agrega productos antes de imprimir.');
+                return;
+            }
+
+            const ticket = document.getElementById('ticket-content');
+            const date = new Date().toLocaleString();
+            const subtotal = currentSale.reduce((sum, i) => sum + i.price * i.quantity, 0);
+            const taxes = subtotal * 0.14975;
+            const total = subtotal + taxes;
+
+            const itemsHtml = currentSale.map(p => `
+    <li>
+      <span>${p.name} x${p.quantity}</span>
+      <span>$${(p.price * p.quantity).toFixed(2)}</span>
+    </li>
+  `).join('');
+
+            ticket.innerHTML = `
+    <div class="ticket">
+      <div class="ticket-header">
+        <strong>💥 Restaurante Demo</strong><br>
+        ${date}
+      </div>
+      <ul class="ticket-items">
+        ${itemsHtml}
+      </ul>
+      <div class="ticket-summary">
+        Subtotal: $${subtotal.toFixed(2)}<br>
+        Impuestos: $${taxes.toFixed(2)}<br>
+        TOTAL: $${total.toFixed(2)}
+      </div>
+      <div class="ticket-footer">
+        ¡Gracias por su compra!
+      </div>
+    </div>
+  `;
+
+            const printWindow = window.open('', '', 'width=400,height=600');
+            printWindow.document.write(`
+    <html>
+      <head>
+        <title>Ticket</title>
+        <style>
+          ${document.querySelector('style').innerHTML}
+        </style>
+      </head>
+      <body onload="window.print(); window.close();">
+        ${ticket.innerHTML}
+      </body>
+    </html>
+  `);
+            printWindow.document.close();
+        });
+
+        // Inicialización
+        window.updateQty = updateQty; window.removeSaleItem = removeSaleItem; window.resetLocalData = resetLocalData;
+        window.addEventListener('DOMContentLoaded', () => { loadInitialData(); calcTotals(); });
+
+    </script>
+</body>
+
+</html>
