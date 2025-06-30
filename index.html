@@ -11,268 +11,219 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <!-- MDB‑style CSS -->
     <style>
-        @import url('https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css');
-
+        /* === FONT === */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+    
         body {
             font-family: 'Roboto', sans-serif;
             margin: 0;
             padding: 0;
-            background: #f5f5f5;
+            background: #f9f9f9;
+            color: #333;
         }
-
+    
+        /* === GLOBAL CONTAINER === */
         .container {
             max-width: 1200px;
             margin: auto;
             padding: 20px;
         }
-
+    
+        /* === COLORS === */
+        :root {
+            --primary-color: #2E7D32; /* Verdoso profesional */
+            --secondary-color: #1E88E5; /* Azul moderno */
+            --accent-color: #FFB300; /* Mostaza fresco */
+            --background-light: #FFFFFF;
+            --background-alt: #FAFAFA;
+            --text-dark: #212121;
+            --text-muted: #757575;
+            --border-color: #DDDDDD;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+    
+        /* === HEADER / TOP BAR === */
+        .mdc-top-app-bar {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+    
+        .mdc-top-app-bar__title {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    
+        .mdc-top-app-bar__section {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+    
+        /* === BUTTONS === */
+        .mdc-button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+    
+        .mdc-button:hover {
+            background-color: #1565C0;
+        }
+    
+        .mdc-button--outlined {
+            background: transparent;
+            border: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+        }
+    
+        .mdc-button--primary {
+            background-color: var(--primary-color);
+        }
+    
+        /* === CARDS === */
         .mdc-card {
-            background: #fff;
-            padding: 16px;
+            background-color: var(--background-light);
+            padding: 20px;
             margin-bottom: 24px;
             border-radius: 8px;
-            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 5px var(--shadow);
         }
-
-        .mdc-card__title i,
+    
         .mdc-card__title {
-            margin-right: 8px;
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
-
+    
+        /* === GRID SYSTEM === */
         .mdc-layout-grid {
             display: grid;
-            gap: 24px;
             grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
         }
-
+    
         .mdc-layout-grid__cell--span-12 {
-            grid-column: 1/-1;
+            grid-column: span 12;
         }
-
+    
         .mdc-layout-grid__cell--span-6 {
             grid-column: span 6;
         }
-
-        .mdc-button {
-            margin: 8px;
+    
+        /* === TEXT FIELDS === */
+        .mdc-text-field {
             position: relative;
-            overflow: hidden;
+            width: 100%;
         }
-
-        /* input autocomplete drop */
+    
+        .mdc-text-field__input {
+            width: -webkit-fill-available;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+    
+        .mdc-floating-label {
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: white;
+            padding: 0 4px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    
+        /* === AUTOCOMPLETE RESULTS === */
         #search-results {
             display: none;
             position: absolute;
-            background: #fff;
-            border: 1px solid rgba(0, 0, 0, 0.12);
-            width: calc(100% - 32px);
+            background: white;
+            border: 1px solid var(--border-color);
+            width: 100%;
             max-height: 200px;
             overflow-y: auto;
             z-index: 10;
         }
-
+    
         #search-results div {
-            padding: 12px 16px;
+            padding: 10px;
             cursor: pointer;
+            border-bottom: 1px solid #eee;
         }
-
+    
         #search-results div:hover {
-            background: rgba(0, 0, 0, 0.04);
+            background: var(--accent-color);
+            color: white;
         }
-
+    
+        /* === SALE ITEMS LIST === */
+        #sale-items-list li {
+            background: var(--background-alt);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1rem;
+        }
+    
+        #sale-items-list button {
+            font-size: 0.9rem;
+            margin-left: 4px;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 0.2rem 0.5rem;
+        }
+    
+        /* === TOTALS === */
+        .totals p {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+    
+        #total {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+    
+        /* === RESPONSIVE TABLE === */
         .table {
             width: 100%;
             border-collapse: collapse;
         }
-
+    
         .table th,
         .table td {
-            padding: 8px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
             text-align: left;
         }
-
-        /* === VENTAS: LISTA DE PRODUCTOS VENDIDOS === */
-        #sale-items-list li {
-            display: flex;
-            flex-direction: column;
-            background: #fefefe;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            margin-bottom: 0.75rem;
-            padding: 0.75rem;
-            font-size: 1.1rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    
+        .table th {
+            background-color: var(--background-alt);
+            color: var(--text-dark);
         }
-
-        #sale-items-list .item-info {
-            display: flex;
-            justify-content: space-between;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-        }
-
-        #sale-items-list .item-details {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
-        #sale-items-list .item-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        #sale-items-list button {
-            font-size: 1.2rem;
-            padding: 0.25rem 0.75rem;
-            border-radius: 6px;
-        }
-
-        /* === SUBTOTALES Y TOTALES === */
-        #subtotal,
-        #taxes,
-        #total,
-        .subtotal,
-        .taxes {
-            font-size: 1.60rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        #total {
-            color: #00796B;
-            /* Verde Material Design */
-            font-size: 2.25rem;
-        }
-
-        /* === TABLA RESPONSIVA === */
-        .responsive-table {
-            width: 100%;
-            overflow-x: auto;
-        }
-
-        .responsive-table table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        .responsive-table th,
-        .responsive-table td {
-            padding: 0.75rem;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-            font-size: 1rem;
-        }
-
-        .responsive-table th {
-            background-color: #e0e0e0;
-            font-weight: 600;
-        }
-
-        @media (max-width: 768px) {
-
-            .responsive-table table,
-            .responsive-table thead,
-            .responsive-table tbody,
-            .responsive-table th,
-            .responsive-table td,
-            .responsive-table tr {
-                display: block;
-            }
-
-            .responsive-table th {
-                position: absolute;
-                top: -9999px;
-                left: -9999px;
-            }
-
-            .responsive-table td {
-                position: relative;
-                padding-left: 50%;
-                border: none;
-                border-bottom: 1px solid #eee;
-            }
-
-            .responsive-table td:before {
-                position: absolute;
-                left: 10px;
-                top: 10px;
-                white-space: nowrap;
-                font-weight: bold;
-                content: attr(data-label);
-            }
-        }
-
-        /* === LISTA DE PRODUCTOS (CATÁLOGO) === */
-        #products-list {
-            width: 100%;
-            padding: 0;
-            list-style: none;
-            margin-top: 1rem;
-        }
-
-        #products-list li {
-            display: flex;
-            justify-content: space-between;
-            padding: 1rem;
-            background: #fafafa;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        }
-
-        #products-list .item-name {
-            font-weight: 600;
-            color: #424242;
-        }
-
-        #products-list .item-category {
-            font-size: 0.9rem;
-            color: #757575;
-        }
-
-        #products-list .item-price {
-            font-weight: bold;
-            color: #1E88E5;
-        }
-
-        /* === DETALLES DE VENTAS === */
-        #sales-history details {
-            background: #ffffff;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            margin-bottom: 1rem;
-            padding: 1rem;
-            font-size: 1rem;
-        }
-
-        #sales-history summary {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: #00796B;
-            cursor: pointer;
-        }
-
-        #sales-history ul {
-            padding-left: 1.25rem;
-            margin-top: 0.5rem;
-        }
-
-        #sales-history li {
-            margin-bottom: 0.25rem;
-        }
-
-        #sales-history p {
-            margin-top: 0.5rem;
-            font-weight: 500;
-        }
-
+    
+        /* === TICKET PRINT AREA === */
         .ticket {
             width: 58mm;
             max-width: 100%;
@@ -280,32 +231,151 @@
             font-size: 12px;
             padding: 10px;
             white-space: pre-wrap;
+            color: black;
         }
-
+    
         .ticket-header,
         .ticket-footer {
             text-align: center;
             border-bottom: 1px dashed #000;
             margin-bottom: 10px;
         }
-
-        .ticket-items {
-            margin-top: 10px;
-        }
-
+    
         .ticket-items li {
             display: flex;
             justify-content: space-between;
             border-bottom: 1px dashed #ccc;
             padding: 4px 0;
         }
-
+    
         .ticket-summary {
-            margin-top: 10px;
             text-align: right;
             font-weight: bold;
         }
+    
+        /* === INDICATORS === */
+        #ventas-del-dia {
+            font-size: 2rem;
+            color: var(--secondary-color);
+        }
+    
+        #top-ventas li {
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed #ccc;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+    
+        /* === SALES HISTORY === */
+        #sales-history details {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+    
+        #sales-history summary {
+            font-weight: 600;
+            color: var(--primary-color);
+            cursor: pointer;
+        }
+    
+        /* === MEDIA QUERIES === */
+        @media (max-width: 768px) {
+            .mdc-layout-grid {
+                grid-template-columns: 1fr;
+            }
+    
+            .mdc-layout-grid__cell--span-6,
+            .mdc-layout-grid__cell--span-12 {
+                grid-column: 1 / -1;
+            }
+    
+            .table,
+            .table thead,
+            .table tbody,
+            .table th,
+            .table td,
+            .table tr {
+                display: block;
+            }
+    
+            .table th {
+                display: none;
+            }
+    
+            .table td {
+                position: relative;
+                padding-left: 50%;
+                text-align: right;
+            }
+    
+            .table td:before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0.75rem;
+                font-weight: bold;
+                text-align: left;
+            }
+        }
+
+  /* === FOOTER STYLES FOR CUISINEPOS === */
+  .footer-cuisinepos {
+    background-color: #1B1F23; /* Elegant dark */
+    color: #f0f0f0;
+    padding: 2rem 1rem;
+    margin-top: 4rem;
+    font-size: 0.95rem;
+    text-align: center;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  .footer-cuisinepos .footer-content {
+    max-width: 800px;
+    margin: auto;
+  }
+  
+  .footer-cuisinepos .footer-brand {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #ffffff;
+  }
+  
+  .footer-cuisinepos .footer-brand i {
+    color: #FFC107; /* A fresh accent (e.g., Cake yellow) */
+    margin-right: 8px;
+  }
+  
+  .footer-cuisinepos .module-name {
+    color: #4CAF50; /* Green for POS - confidence/freshness */
+  }
+  
+  .footer-cuisinepos .footer-slogan {
+    font-style: italic;
+    color: #cccccc;
+    margin-bottom: 0.5rem;
+  }
+  
+  .footer-cuisinepos .footer-copy {
+    font-size: 0.85rem;
+    color: #aaaaaa;
+  }
+  
+  /* Responsive tweak */
+  @media (max-width: 600px) {
+    .footer-cuisinepos {
+      font-size: 0.85rem;
+      padding: 1.5rem 1rem;
+    }
+  }
+
+  #print-ticket{
+    margin-bottom: 16px;
+  }
     </style>
+    
 
 </head>
 
@@ -325,7 +395,7 @@
     <main class="container">
         <div class="mdc-layout-grid">
             <!-- VENTAS -->
-            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 mdc-card">
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6 mdc-card">
                 <h2 class="mdc-card__title"><i class="fas fa-shopping-cart"></i> Ventas</h2>
                 <div style="position:relative;">
                     <div class="mdc-text-field mdc-text-field--outlined" style="width: -webkit-fill-available;">
@@ -365,7 +435,7 @@
 
             <!-- PRODUCTOS -->
             <!-- AGREGAR PRODUCTO -->
-            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 mdc-card" style="padding: 1rem;">
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6 mdc-card" style="padding: 1rem;">
                 <h2 class="mdc-typography--headline6" style="margin-bottom: 1rem;">
                     <i class="fas fa-plus-circle"></i> Agregar Producto
                 </h2>
@@ -416,7 +486,7 @@
             </div>
 
             <!-- INDICADORES -->
-            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 mdc-card">
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6 mdc-card">
                 <h2 class="mdc-card__title"><i class="fas fa-chart-bar"></i> Indicadores</h2>
                 <div class="mdc-layout-grid">
                     <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12">
@@ -435,7 +505,7 @@
             </div>
 
             <!-- HISTORIAL -->
-            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 mdc-card">
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6 mdc-card">
                 <h2 class="mdc-card__title"><i class="fas fa-history"></i> Historial de Ventas</h2>
                 <div id="sales-history"></div>
             </div>
@@ -469,6 +539,16 @@
             </div>
 
         </div>
+        <!-- FOOTER -->
+<footer class="footer-cuisinepos">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <i class="fas fa-utensils"></i> <strong>CakeApp</strong> · <span class="module-name">Módulo CuisinePOS</span>
+      </div>
+      <p class="footer-slogan">Tecnología para la gestión inteligente en restaurantes.</p>
+      <p class="footer-copy">&copy; 2025 CuisineApps. Todos los derechos reservados.</p>
+    </div>
+  </footer>
     </main>
 
     <script>
@@ -755,49 +835,115 @@
             const subtotal = currentSale.reduce((sum, i) => sum + i.price * i.quantity, 0);
             const taxes = subtotal * 0.14975;
             const total = subtotal + taxes;
+// Generar el HTML de los items una sola vez
+const itemsHtml = currentSale.map(p => `
+  <tr>
+    <td style="padding: 1px 0;">${p.quantity} ${p.name}</td>
+    <td style="text-align: right; padding: 1px 0;">$${(p.price * p.quantity).toFixed(2)}</td>
+  </tr>
+`).join('');
 
-            const itemsHtml = currentSale.map(p => `
-    <li>
-      <span>${p.name} x${p.quantity}</span>
-      <span>$${(p.price * p.quantity).toFixed(2)}</span>
-    </li>
-  `).join('');
-
-            ticket.innerHTML = `
-    <div class="ticket">
-      <div class="ticket-header">
-        <strong>💥 Restaurante Demo</strong><br>
-        ${date}
-      </div>
-      <ul class="ticket-items">
-        ${itemsHtml}
-      </ul>
-      <div class="ticket-summary">
-        Subtotal: $${subtotal.toFixed(2)}<br>
-        Impuestos: $${taxes.toFixed(2)}<br>
-        TOTAL: $${total.toFixed(2)}
-      </div>
-      <div class="ticket-footer">
-        ¡Gracias por su compra!
-      </div>
+ticket.innerHTML = `
+  <div class="ticket" style="font-family: monospace; font-size: 12px; width: 250px; margin: 0 auto; padding: 0;">
+    <div class="ticket-header" style="text-align: center; margin: 0; padding: 0;">
+      <strong style="font-size: 14px;">CAFE D'ARAGON</strong><br>
+      5201 St-Urbain<br>
+      Montreal, Qc<br>
+      Tel : (514) 270-7369<br>
+      ----------------------------------<br>
+      TPS:764212510RT0001<br>
+      TVQ:1225463251T00001<br>
+      ----------------------------------<br>
     </div>
-  `;
 
-            const printWindow = window.open('', '', 'width=400,height=600');
-            printWindow.document.write(`
-    <html>
-      <head>
-        <title>Ticket</title>
-        <style>
-          ${document.querySelector('style').innerHTML}
-        </style>
-      </head>
-      <body onload="window.print(); window.close();">
-        ${ticket.innerHTML}
-      </body>
-    </html>
-  `);
-            printWindow.document.close();
+    <div class="ticket-meta" style="text-align: center; margin: 0; padding: 0;">
+      # : ${Math.floor(Math.random() * 100000).toString().padStart(8, '0')}-1<br>
+      ${new Date().toISOString().split('T')[0]} ${new Date().toLocaleTimeString('en-US', {hour12: false}).substring(0, 8)}<br>
+      Table : 1 -- Siege(s) : 1<br>
+      ----------------------------------<br>
+    </div>
+
+    <div class="ticket-items" style="margin-top: 2px; padding: 0;">
+      <table style="width: 100%; border-collapse: collapse;">
+        ${itemsHtml}
+      </table>
+    </div>
+
+    <div class="ticket-summary" style="margin-top: 6px; text-align: left; margin: 0; padding: 0;">
+      ----------------------------------<br>
+      Sous-total : $${subtotal.toFixed(2)}<br>
+      TPS : $${(subtotal * 0.05).toFixed(2)}<br>
+      TVQ : $${(subtotal * 0.09975).toFixed(2)}<br>
+      ----------------------------------<br>
+      <strong>TOTAL : $${total.toFixed(2)}</strong><br>
+      ----------------------------------<br>
+    </div>
+
+    <div class="ticket-payment" style="text-align: left; margin: 0; padding: 0;">
+      ARGENT $${total.toFixed(2)} Monnaie $0.00<br>
+      Serveur : Employe<br>
+      Merci pour votre visite.<br>
+      ----------------------------------<br>
+    </div>
+
+    <div class="ticket-footer" style="text-align: center; margin: 0; padding: 0;">
+      ${new Date().toISOString().split('T')[0]} ${new Date().toLocaleTimeString('en-US', {hour12: false}).substring(0, 8)}<br>
+      MEV:${Math.floor(Math.random() * 10000000).toString().padStart(8, '0')}-${Math.floor(Math.random() * 100000000).toString().padStart(8, '0')}<br>
+      CAFÉ D'ARAGON<br>
+      5201, RUE SAINT-URBAIN MONTREAL<br>
+      1 Z W I - U Z = T + H ➡<br>
+    </div>
+  </div>
+`;
+
+const printWindow = window.open('', '', 'width=400,height=600');
+printWindow.document.write(`
+  <html>
+    <head>
+      <title>Ticket</title>
+      <style>
+        body {
+          margin: 5px;
+          padding: 0;
+          font-family: monospace;
+          font-size: 12px;
+          width: 250px;
+        }
+        .ticket {
+          margin: 0 auto;
+          padding: 0;
+        }
+        .ticket-header,
+        .ticket-meta,
+        .ticket-items,
+        .ticket-summary,
+        .ticket-payment,
+        .ticket-footer {
+          margin: 0;
+          padding: 0;
+          text-align: center;
+        }
+        table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+        tr {
+          border-bottom: none;
+        }
+        td {
+          padding: 1px 0;
+        }
+        strong {
+          font-size: 13px;
+        }
+      </style>
+    </head>
+    <body onload="window.print(); window.close();">
+      ${ticket.innerHTML}
+    </body>
+  </html>
+`);
+printWindow.document.close();
         });
 
         // Inicialización
