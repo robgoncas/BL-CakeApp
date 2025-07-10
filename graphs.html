@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tableau de Bord - Analyse des Ventes</title>
+    <!-- Material Icons & Font Awesome -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- MDB‑style CSS -->
+    <style>
+        /* === FONT === */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+    
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+            color: #333;
+        }
+    
+        /* === GLOBAL CONTAINER === */
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+    
+        /* === COLORS === */
+        :root {
+            --primary-color: #2E7D32;
+            --secondary-color: #1E88E5;
+            --accent-color: #FFB300;
+            --background-light: #FFFFFF;
+            --background-alt: #FAFAFA;
+            --text-dark: #212121;
+            --text-muted: #757575;
+            --border-color: #DDDDDD;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+    
+        /* === HEADER / TOP BAR === */
+        .mdc-top-app-bar {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            box-shadow: 0 2px 4px var(--shadow);
+        }
+    
+        .mdc-top-app-bar__title {
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    
+        .mdc-top-app-bar__section {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+    
+        /* === BUTTONS === */
+        .mdc-button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+    
+        .mdc-button:hover {
+            background-color: #1565C0;
+        }
+    
+        .mdc-button--outlined {
+            background: transparent;
+            border: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+        }
+    
+        .mdc-button--primary {
+            background-color: var(--primary-color);
+        }
+    
+        /* === CARDS === */
+        .mdc-card {
+            background-color: var(--background-light);
+            padding: 20px;
+            margin-bottom: 24px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--shadow);
+        }
+    
+        .mdc-card__title {
+            font-size: 1.25rem;
+            font-weight: 500;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+    
+        /* === GRID SYSTEM === */
+        .mdc-layout-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+    
+        .mdc-layout-grid__cell--span-12 {
+            grid-column: span 12;
+        }
+    
+        .mdc-layout-grid__cell--span-6 {
+            grid-column: span 6;
+        }
+    
+        .mdc-layout-grid__cell--span-4 {
+            grid-column: span 4;
+        }
+    
+        /* === TEXT FIELDS === */
+        .mdc-text-field {
+            position: relative;
+            width: 100%;
+        }
+    
+        .mdc-text-field__input {
+            width: -webkit-fill-available;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+    
+        .mdc-floating-label {
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            background: white;
+            padding: 0 4px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    
+        /* === CHART CONTAINERS === */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+    
+        /* === RESPONSIVE TABLE === */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+    
+        .table th,
+        .table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+    
+        .table th {
+            background-color: var(--background-alt);
+            color: var(--text-dark);
+        }
+    
+        /* === MEDIA QUERIES === */
+        @media (max-width: 768px) {
+            .mdc-layout-grid {
+                grid-template-columns: 1fr;
+            }
+    
+            .mdc-layout-grid__cell--span-6,
+            .mdc-layout-grid__cell--span-12,
+            .mdc-layout-grid__cell--span-4 {
+                grid-column: 1 / -1;
+            }
+        }
+
+        /* === FOOTER STYLES === */
+        .footer-cuisinepos {
+            background-color: #1B1F23;
+            color: #f0f0f0;
+            padding: 2rem 1rem;
+            margin-top: 4rem;
+            font-size: 0.95rem;
+            text-align: center;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .footer-cuisinepos .footer-content {
+            max-width: 800px;
+            margin: auto;
+        }
+        
+        .footer-cuisinepos .footer-brand {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #ffffff;
+        }
+        
+        .footer-cuisinepos .footer-brand i {
+            color: #FFC107;
+            margin-right: 8px;
+        }
+        
+        .footer-cuisinepos .module-name {
+            color: #4CAF50;
+        }
+        
+        .footer-cuisinepos .footer-slogan {
+            font-style: italic;
+            color: #cccccc;
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-cuisinepos .footer-copy {
+            font-size: 0.85rem;
+            color: #aaaaaa;
+        }
+        
+        @media (max-width: 600px) {
+            .footer-cuisinepos {
+                font-size: 0.85rem;
+                padding: 1.5rem 1rem;
+            }
+        }
+
+        /* File input styling */
+        .file-input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .file-input-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .file-input-label i {
+            font-size: 1.2rem;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .file-name {
+            margin-left: 10px;
+            font-style: italic;
+            color: var(--text-muted);
+        }
+
+        /* Top Products Table */
+        .top-products-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .top-products-table th {
+            background-color: var(--background-alt);
+            text-align: left;
+            padding: 8px;
+        }
+
+        .top-products-table td {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .top-products-table tr:nth-child(even) {
+            background-color: var(--background-alt);
+        }
+
+        /* Data labels for charts */
+        .chart-data-label {
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="mdc-top-app-bar">
+        <div class="mdc-top-app-bar__row">
+            <section class="mdc-top-app-bar__section">
+                <span class="mdc-top-app-bar__title"><i class="fas fa-chart-line"></i> Analyse des Ventes</span>
+            </section>
+        </div>
+    </header>
+    <main class="container">
+        <div class="mdc-layout-grid">
+            <!-- File Upload Section -->
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-12 mdc-card">
+                <h2 class="mdc-card__title"><i class="fas fa-file-import"></i> Importer des Données</h2>
+                <div class="file-input-container">
+                    <label class="file-input-label mdc-button mdc-button--raised">
+                        <i class="fas fa-folder-open"></i>
+                        <span>Sélectionner un fichier JSON</span>
+                        <input type="file" id="file-input" accept=".json">
+                    </label>
+                    <span id="file-name" class="file-name">Aucun fichier sélectionné</span>
+                </div>
+                <div id="data-summary" style="display: none;">
+                    <p><strong>Données chargées:</strong> <span id="sales-count">0</span> ventes analysées</p>
+                    <p><strong>Date:</strong> <span id="current-date">-</span></p>
+                    <p><strong>Chiffre d'affaires total:</strong> <span id="total-revenue">$0.00</span></p>
+                    <p><strong>Nombre total de produits vendus:</strong> <span id="total-products">0</span></p>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6 mdc-card">
+                <h2 class="mdc-card__title"><i class="fas fa-chart-pie"></i> Répartition par Catégorie</h2>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+                <div id="category-table-container" style="margin-top: 15px;"></div>
+            </div>
+
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6 mdc-card">
+                <h2 class="mdc-card__title"><i class="fas fa-clock"></i> Ventes par Heure</h2>
+                <div class="chart-container">
+                    <canvas id="hourlySalesChart"></canvas>
+                </div>
+            </div>
+
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6 mdc-card">
+                <h2 class="mdc-card__title"><i class="fas fa-star"></i> Top 5 Produits</h2>
+                <div id="top-products-table-container">
+                    <p>Chargement des données...</p>
+                </div>
+            </div>
+
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6 mdc-card">
+                <h2 class="mdc-card__title"><i class="fas fa-money-bill-wave"></i> Évolution du Chiffre d'Affaires</h2>
+                <div class="chart-container">
+                    <canvas id="revenueTrendChart"></canvas>
+                </div>
+                <div style="margin-top: 15px;">
+                    <p><strong>Heure de pointe:</strong> <span id="peak-hour">-</span></p>
+                    <p><strong>Chiffre d'affaires moyen par heure:</strong> <span id="avg-hourly-revenue">$0.00</span></p>
+                </div>
+            </div>
+
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6 mdc-card">
+                <h2 class="mdc-card__title"><i class="fas fa-shopping-basket"></i> Analyse des Paniers</h2>
+                <div style="display: flex; justify-content: space-between;">
+                    <div style="width: 48%;">
+                        <p><strong>Panier moyen:</strong> <span id="avg-ticket">$0.00</span></p>
+                        <p><strong>Panier médian:</strong> <span id="median-ticket">$0.00</span></p>
+                    </div>
+                    <div style="width: 48%;">
+                        <p><strong>Produits par vente (moy):</strong> <span id="avg-products">0</span></p>
+                        <p><strong>Vente la plus élevée:</strong> <span id="max-ticket">$0.00</span></p>
+                    </div>
+                </div>
+                <div class="chart-container" style="height: 250px; margin-top: 15px;">
+                    <canvas id="ticketDistributionChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="mdc-layout-grid__cell mdc-layout-grid__cell--span-6 mdc-card">
+                <h2 class="mdc-card__title"><i class="fas fa-table"></i> Détail des Ventes</h2>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Heure</th>
+                                <th>Produits</th>
+                                <th>Quantité</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sales-table-body">
+                            <tr>
+                                <td colspan="4" style="text-align: center;">Aucune donnée disponible. Veuillez importer un fichier JSON.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer-cuisinepos">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <i class="fas fa-utensils"></i> <strong>CakeApp</strong> · <span class="module-name">Module d'Analyse</span>
+            </div>
+            <p class="footer-slogan">Intelligence commerciale pour votre restaurant.</p>
+            <p class="footer-copy">&copy; 2025 CuisineApps. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let salesData = [];
+        let categoryChart, hourlySalesChart, revenueTrendChart, ticketDistributionChart;
+
+        // DOM elements
+        const fileInput = document.getElementById('file-input');
+        const fileNameSpan = document.getElementById('file-name');
+        const dataSummaryDiv = document.getElementById('data-summary');
+        const salesCountSpan = document.getElementById('sales-count');
+        const currentDateSpan = document.getElementById('current-date');
+        const totalRevenueSpan = document.getElementById('total-revenue');
+        const totalProductsSpan = document.getElementById('total-products');
+        const salesTableBody = document.getElementById('sales-table-body');
+        const topProductsTableContainer = document.getElementById('top-products-table-container');
+        const peakHourSpan = document.getElementById('peak-hour');
+        const avgHourlyRevenueSpan = document.getElementById('avg-hourly-revenue');
+        const avgTicketSpan = document.getElementById('avg-ticket');
+        const medianTicketSpan = document.getElementById('median-ticket');
+        const avgProductsSpan = document.getElementById('avg-products');
+        const maxTicketSpan = document.getElementById('max-ticket');
+
+        // Event listeners
+        fileInput.addEventListener('change', handleFileUpload);
+
+        // Functions
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            fileNameSpan.textContent = file.name;
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    salesData = JSON.parse(e.target.result);
+                    if (!Array.isArray(salesData)) {
+                        throw new Error("Le fichier ne contient pas un tableau valide de données de vente.");
+                    }
+                    updateDataSummary();
+                    renderCharts();
+                    renderTopProductsTable();
+                    renderSalesTable();
+                    updateBasketAnalysis();
+                } catch (error) {
+                    alert("Erreur lors de la lecture du fichier: " + error.message);
+                    console.error(error);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function updateDataSummary() {
+            if (salesData.length === 0) {
+                dataSummaryDiv.style.display = 'none';
+                return;
+            }
+
+            // Get the date from the first sale (assuming all sales are from the same day)
+            const saleDate = new Date(salesData[0].date);
+            currentDateSpan.textContent = saleDate.toLocaleDateString('fr-FR', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            // Calculate total revenue and products
+            const totalRevenue = salesData.reduce((sum, sale) => sum + sale.total, 0);
+            const totalProducts = salesData.reduce((sum, sale) => {
+                return sum + sale.products.reduce((prodSum, product) => prodSum + product.quantity, 0);
+            }, 0);
+
+            // Update UI
+            salesCountSpan.textContent = salesData.length;
+            totalRevenueSpan.textContent = `$${totalRevenue.toFixed(2)}`;
+            totalProductsSpan.textContent = totalProducts;
+            dataSummaryDiv.style.display = 'block';
+        }
+
+        function renderCharts() {
+            // Destroy existing charts if they exist
+            if (categoryChart) categoryChart.destroy();
+            if (hourlySalesChart) hourlySalesChart.destroy();
+            if (revenueTrendChart) revenueTrendChart.destroy();
+            if (ticketDistributionChart) ticketDistributionChart.destroy();
+
+            // Prepare data for charts
+            const categoryData = prepareCategoryData();
+            const hourlySalesData = prepareHourlySalesData();
+            const revenueTrendData = prepareRevenueTrendData();
+            const ticketDistributionData = prepareTicketDistributionData();
+
+            // Register the plugin to all charts
+            Chart.register(ChartDataLabels);
+
+            // Create Category Chart with values displayed
+            categoryChart = new Chart(
+                document.getElementById('categoryChart'),
+                {
+                    type: 'pie',
+                    data: {
+                        labels: categoryData.labels,
+                        datasets: [{
+                            data: categoryData.values,
+                            backgroundColor: [
+                                '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF',
+                                '#FF9F40', '#8AC24A', '#F06292', '#7986CB', '#A1887F'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right'
+                            },
+                            datalabels: {
+                                formatter: (value, ctx) => {
+                                    const sum = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    const percentage = (value * 100 / sum).toFixed(1) + '%';
+                                    return percentage;
+                                },
+                                color: '#fff',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                }
+            );
+
+            // Create Hourly Sales Chart
+            hourlySalesChart = new Chart(
+                document.getElementById('hourlySalesChart'),
+                {
+                    type: 'line',
+                    data: {
+                        labels: hourlySalesData.labels,
+                        datasets: [{
+                            label: 'Nombre de ventes',
+                            data: hourlySalesData.counts,
+                            backgroundColor: '#36A2EB'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            datalabels: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                }
+            );
+
+            // Create Revenue Trend Chart
+            revenueTrendChart = new Chart(
+                document.getElementById('revenueTrendChart'),
+                {
+                    type: 'line',
+                    data: {
+                        labels: revenueTrendData.labels,
+                        datasets: [{
+                            label: 'Chiffre d\'affaires ($)',
+                            data: revenueTrendData.revenues,
+                            borderColor: '#FF6384',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            datalabels: {
+                                formatter: (value) => `$${value.toFixed(2)}`,
+                                align: 'top',
+                                anchor: 'end'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                }
+            );
+
+            // Create Ticket Distribution Chart
+            ticketDistributionChart = new Chart(
+                document.getElementById('ticketDistributionChart'),
+                {
+                    type: 'bar',
+                    data: {
+                        labels: ticketDistributionData.labels,
+                        datasets: [{
+                            label: 'Nombre de ventes',
+                            data: ticketDistributionData.counts,
+                            backgroundColor: '#4BC0C0'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            datalabels: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                }
+            );
+
+            // Update category table
+            renderCategoryTable(categoryData);
+
+            // Update revenue trend metrics
+            updateRevenueTrendMetrics(hourlySalesData);
+        }
+
+        function renderCategoryTable(categoryData) {
+            const total = categoryData.values.reduce((sum, val) => sum + val, 0);
+            const tableHTML = `
+                <table class="top-products-table">
+                    <thead>
+                        <tr>
+                            <th>Catégorie</th>
+                            <th>Quantité</th>
+                            <th>Pourcentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${categoryData.labels.map((label, index) => {
+                            const value = categoryData.values[index];
+                            const percentage = ((value / total) * 100).toFixed(1);
+                            return `
+                                <tr>
+                                    <td>${label}</td>
+                                    <td>${value}</td>
+                                    <td>${percentage}%</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+            document.getElementById('category-table-container').innerHTML = tableHTML;
+        }
+
+        function renderTopProductsTable() {
+            const productData = prepareTopProductsData();
+            
+            const tableHTML = `
+                <table class="top-products-table">
+                    <thead>
+                        <tr>
+                            <th>Produit</th>
+                            <th>Quantité</th>
+                            <th>Total ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${productData.map(product => `
+                            <tr>
+                                <td>${product.name}</td>
+                                <td>${product.quantity}</td>
+                                <td>$${product.totalRevenue.toFixed(2)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            topProductsTableContainer.innerHTML = tableHTML;
+        }
+
+        function prepareCategoryData() {
+            const categoryMap = {};
+            
+            salesData.forEach(sale => {
+                sale.products.forEach(product => {
+                    const category = getProductCategory(product.name);
+                    if (!categoryMap[category]) {
+                        categoryMap[category] = 0;
+                    }
+                    categoryMap[category] += product.quantity;
+                });
+            });
+
+            return {
+                labels: Object.keys(categoryMap),
+                values: Object.values(categoryMap)
+            };
+        }
+
+        function getProductCategory(productName) {
+            // This is a simplified categorization - adjust according to your actual product categories
+            if (productName.includes('Café') || productName.includes('Espresso') || productName.includes('Capuccino')) return 'Cafés';
+            if (productName.includes('Thé')) return 'Thés';
+            if (productName.includes('Boisson')) return 'Boissons';
+            if (productName.includes('Salade')) return 'Salades';
+            if (productName.includes('Sandwich')) return 'Sandwichs';
+            if (productName.includes('Empanada')) return 'Empanadas';
+            if (productName.includes('Poulet')) return 'Plats de poulet';
+            if (productName.includes('Poisson')) return 'Plats de poisson';
+            if (productName.includes('Burrito') || productName.includes('Fajitas') || productName.includes('Quesadilla')) return 'Mexicain';
+            if (productName.includes('Dessert') || productName.includes('Gateau') || productName.includes('Churro')) return 'Desserts';
+            return 'Autres';
+        }
+
+        function prepareHourlySalesData() {
+            const hourlyData = Array(24).fill(0);
+            const hourlyRevenue = Array(24).fill(0);
+            
+            salesData.forEach(sale => {
+                const hour = new Date(sale.date).getHours();
+                hourlyData[hour]++;
+                hourlyRevenue[hour] += sale.total;
+            });
+
+            return {
+                labels: Array.from({length: 24}, (_, i) => `${i}h`),
+                counts: hourlyData,
+                revenues: hourlyRevenue
+            };
+        }
+
+        function prepareRevenueTrendData() {
+            // For single day, we'll show hourly revenue
+            const hourlyRevenue = Array(24).fill(0);
+            
+            salesData.forEach(sale => {
+                const hour = new Date(sale.date).getHours();
+                hourlyRevenue[hour] += sale.total;
+            });
+
+            return {
+                labels: Array.from({length: 24}, (_, i) => `${i}h`),
+                revenues: hourlyRevenue
+            };
+        }
+
+        function prepareTopProductsData() {
+            const productMap = {};
+            
+            salesData.forEach(sale => {
+                sale.products.forEach(product => {
+                    if (!productMap[product.name]) {
+                        productMap[product.name] = {
+                            quantity: 0,
+                            totalRevenue: 0
+                        };
+                    }
+                    productMap[product.name].quantity += product.quantity;
+                    productMap[product.name].totalRevenue += product.quantity * product.price;
+                });
+            });
+
+            return Object.entries(productMap)
+                .map(([name, data]) => ({
+                    name,
+                    quantity: data.quantity,
+                    totalRevenue: data.totalRevenue
+                }))
+                .sort((a, b) => b.quantity - a.quantity)
+                .slice(0, 5);
+        }
+
+        function prepareTicketDistributionData() {
+            // Group sales by total amount ranges
+            const ranges = [
+                { min: 0, max: 10, label: '0-10$', count: 0 },
+                { min: 10, max: 20, label: '10-20$', count: 0 },
+                { min: 20, max: 30, label: '20-30$', count: 0 },
+                { min: 30, max: 40, label: '30-40$', count: 0 },
+                { min: 40, max: 50, label: '40-50$', count: 0 },
+                { min: 50, max: Infinity, label: '50$+', count: 0 }
+            ];
+            
+            salesData.forEach(sale => {
+                for (const range of ranges) {
+                    if (sale.total >= range.min && sale.total < range.max) {
+                        range.count++;
+                        break;
+                    }
+                }
+            });
+
+            return {
+                labels: ranges.map(r => r.label),
+                counts: ranges.map(r => r.count)
+            };
+        }
+
+        function updateRevenueTrendMetrics(hourlyData) {
+            // Find peak hour
+            let maxSales = 0;
+            let peakHour = '';
+            let totalRevenue = 0;
+            
+            hourlyData.revenues.forEach((revenue, index) => {
+                totalRevenue += revenue;
+                if (revenue > maxSales) {
+                    maxSales = revenue;
+                    peakHour = `${index}h`;
+                }
+            });
+
+            const avgHourlyRevenue = totalRevenue / 24;
+            
+            peakHourSpan.textContent = peakHour;
+            avgHourlyRevenueSpan.textContent = `$${avgHourlyRevenue.toFixed(2)}`;
+        }
+
+        function updateBasketAnalysis() {
+            if (salesData.length === 0) return;
+
+            // Calculate average ticket
+            const totalRevenue = salesData.reduce((sum, sale) => sum + sale.total, 0);
+            const avgTicket = totalRevenue / salesData.length;
+            
+            // Calculate median ticket
+            const sortedTotals = salesData.map(sale => sale.total).sort((a, b) => a - b);
+            const medianTicket = sortedTotals[Math.floor(sortedTotals.length / 2)];
+            
+            // Calculate average products per sale
+            const totalProducts = salesData.reduce((sum, sale) => {
+                return sum + sale.products.reduce((prodSum, product) => prodSum + product.quantity, 0);
+            }, 0);
+            const avgProducts = totalProducts / salesData.length;
+            
+            // Find max ticket
+            const maxTicket = Math.max(...salesData.map(sale => sale.total));
+            
+            // Update UI
+            avgTicketSpan.textContent = `$${avgTicket.toFixed(2)}`;
+            medianTicketSpan.textContent = `$${medianTicket.toFixed(2)}`;
+            avgProductsSpan.textContent = avgProducts.toFixed(1);
+            maxTicketSpan.textContent = `$${maxTicket.toFixed(2)}`;
+        }
+
+        function renderSalesTable() {
+            if (salesData.length === 0) {
+                salesTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="4" style="text-align: center;">Aucune donnée disponible. Veuillez importer un fichier JSON.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Sort sales by time
+            const sortedSales = [...salesData].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            salesTableBody.innerHTML = sortedSales.map(sale => `
+                <tr>
+                    <td>${new Date(sale.date).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</td>
+                    <td>
+                        <ul style="margin: 0; padding-left: 20px;">
+                            ${sale.products.map(p => `<li>${p.name} x${p.quantity}</li>`).join('')}
+                        </ul>
+                    </td>
+                    <td>${sale.products.reduce((sum, p) => sum + p.quantity, 0)}</td>
+                    <td>$${sale.total.toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+
+</html>
